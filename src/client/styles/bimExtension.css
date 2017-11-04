@@ -1,0 +1,48 @@
+.phasing-btn {
+    background:url(../images/phases.png) no-repeat;
+    background-position: center;
+    height: 24px;
+    width: 24px;
+}
+
+.phasing-panel-container {
+    color: #f2f2f2;
+    margin: 10px;
+}
+
+.phasing-panel-button-row {
+    display: flex;
+    justify-content: center;
+    margin: 4px;
+}
+
+.phasing-panel-btn {
+    border: 1px solid #9b9b9b;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    height: 32px;
+    width: 32px;
+    margin: 4px 8px 4px 8px;
+    padding: 4px 4px 4px 4px;
+}
+
+.phasing-panel-btn.first {
+    background: url(../images/first-phase.png) no-repeat center;
+}
+
+.phasing-panel-btn.last {
+    background: url(../images/last-phase.png) no-repeat center;
+}
+
+.phasing-panel-btn.prev {
+    background: url(../images/prev-phase.png) no-repeat center;
+}
+
+.phasing-panel-btn.next {
+    background: url(../images/next-phase.png) no-repeat center;
+}
+
+.phasing-panel-row {
+    margin: 4px;
+}
