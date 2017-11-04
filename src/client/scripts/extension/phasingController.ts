@@ -25,7 +25,7 @@ export class PhasingController {
         '11-Ceilings',
         '12-HVAC',
         '13-Pluming',
-        '14-Electrical',
+        '14-Electrical'
     ];
     private _data: { [name: string]: PhasingData };
     private _hiddenDbIds: number[] = [];
@@ -80,7 +80,6 @@ export class PhasingController {
         let existingDbIds: number[] = [];
         let currentDbIds: number[] = [];
         let futureDbIds: number[] = [];
-        let hiddenDbIds: number[] = [];
         const currentPhase: PhasingData = this._data[phase];
         const keys: string[] = Object.keys(this._data);
 
@@ -161,7 +160,7 @@ export class PhasingController {
                                 break;
                             case 'Area':
                                 area = parseFloat(p.displayValue);
-                                break
+                                break;
                             case 'Volume':
                                 volume = parseFloat(p.displayValue);
                                 break;
@@ -177,7 +176,7 @@ export class PhasingController {
                                 volume: 0.0,
                                 dbIds: [],
                                 index: 0
-                            }
+                            };
                         }
                         phaseData.dbIds.push(propResult.dbId);
                         phaseData.area += area;

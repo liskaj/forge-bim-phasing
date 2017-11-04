@@ -74,19 +74,19 @@ export class PhasingPanel extends PanelBase {
         this.refresh();
     }
 
-    private onBtnFirstClick(e): void {
+    private onBtnFirstClick(e: JQuery.Event): void {
         this.displayPhase(this._controller.firstPhase);
     }
 
-    private onBtnNextClick(e): void {
+    private onBtnNextClick(e: JQuery.Event): void {
         this.displayPhase(this._controller.nextPhase);
     }
 
-    private onBtnPrevClick(e): void {
+    private onBtnPrevClick(e: JQuery.Event): void {
         this.displayPhase(this._controller.previousPhase);
     }
 
-    private onBtnLastClick(e): void {
+    private onBtnLastClick(e: JQuery.Event): void {
         this.displayPhase(this._controller.lastPhase);
     }
 
