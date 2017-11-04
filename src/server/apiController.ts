@@ -4,7 +4,6 @@
 'use strict';
 
 import * as express from 'express';
-import * as fs from 'fs';
 import * as forge from 'forge-apis';
 
 import { StatusCodes } from './statusCodes';
