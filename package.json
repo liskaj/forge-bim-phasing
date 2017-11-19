@@ -9,7 +9,7 @@
     "ts-compile": "node node_modules/typescript/bin/tsc -p ./src/server && node node_modules/typescript/bin/tsc -p ./src/client"
   },
   "engines": {
-    "node": "6.11.5"
+    "node": "8.9.1"
   },
   "repository": {
     "type": "git",
