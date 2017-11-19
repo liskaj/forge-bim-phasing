@@ -8,6 +8,8 @@
 .phasing-panel-container {
     color: #f2f2f2;
     margin: 10px;
+    height: 94%;
+    width: 96%;
 }
 
 .phasing-panel-button-row {
@@ -45,4 +47,21 @@
 
 .phasing-panel-row {
     margin: 4px;
+}
+
+.report-btn {
+    background:url(../images/report.png) no-repeat;
+    background-position: center;
+    height: 24px;
+    width: 24px;
+}
+
+.phasing-chart-container {
+    height: 100%;
+    width: 100%;
+}
+
+/* Plottable overrides */
+.plottable .axis text {
+    fill: #f2f2f2;
 }

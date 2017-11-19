@@ -2,12 +2,15 @@
 
 import { PhasingController } from './phasingController';
 import { PhasingPanel } from './phasingPanel';
+import { ReportPanel } from './reportPanel';
 
 export class BIMExtension extends Autodesk.Viewing.Extension {
     private _phasingController: PhasingController;
     private _phasingPanel: PhasingPanel;
+    private _reportPanel: ReportPanel;
     // buttons
-    private _btnPhases: Autodesk.Viewing.UI.Button;
+    private _btnPhasing: Autodesk.Viewing.UI.Button;
+    private _btnReport: Autodesk.Viewing.UI.Button;
 
     constructor(viewer: Autodesk.Viewing.Private.GuiViewer3D, options: any) {
         super(viewer, options);
@@ -25,32 +28,45 @@ export class BIMExtension extends Autodesk.Viewing.Extension {
             this._phasingPanel.uninitialize();
             this._phasingPanel = null;
         }
+        if (this._reportPanel) {
+            this.viewer.removePanel(this._reportPanel);
+            this._reportPanel.uninitialize();
+            this._reportPanel = null;
+        }
         return true;
     }
 
     private createToolbar(): void {
         // create button
-        this._btnPhases = new Autodesk.Viewing.UI.Button('BIMExtension.Toolbar.Phasing');
-        this._btnPhases.setIcon('phasing-btn');
-        this._btnPhases.setToolTip('Phases');
-        this._btnPhases.onClick = (e: MouseEvent) => {
-            this.onPhases(e);
+        this._btnPhasing = new Autodesk.Viewing.UI.Button('BIMExtension.Toolbar.Phasing');
+        this._btnPhasing.setIcon('phasing-btn');
+        this._btnPhasing.setToolTip('Phases');
+        this._btnPhasing.onClick = (e: MouseEvent) => {
+            this.onPhasing(e);
+        };
+        // create button
+        this._btnReport = new Autodesk.Viewing.UI.Button('BIMExtension.Toolbar.Report');
+        this._btnReport.setIcon('report-btn');
+        this._btnReport.setToolTip('Report');
+        this._btnReport.onClick = (e: MouseEvent) => {
+            this.onReport(e);
         };
         // add button to the goup
         const ctrlGroup = new Autodesk.Viewing.UI.ControlGroup('BIMExtension.Toolbar.ControlGroup');
 
-        ctrlGroup.addControl(this._btnPhases);
+        ctrlGroup.addControl(this._btnPhasing);
+        ctrlGroup.addControl(this._btnReport);
         // add group to main toolbar
         this.viewer.toolbar.addControl(ctrlGroup);
     }
 
-    private onPhases(e: MouseEvent): void {
+    private onPhasing(e: MouseEvent): void {
         if (!this._phasingPanel) {
-            this._phasingPanel = new PhasingPanel(this.viewer.container, 'BIMExtension.QtoPanel', this._phasingController);
+            this._phasingPanel = new PhasingPanel(this.viewer.container, 'BIMExtension.PhasingPanel', this._phasingController);
             this.viewer.addPanel(this._phasingPanel);
             // as the panel visibility changes, we fix the button state
             this._phasingPanel.addVisibilityListener((state: boolean) => {
-                this._btnPhases.setState(state ? Autodesk.Viewing.UI.Button.State.ACTIVE : Autodesk.Viewing.UI.Button.State.INACTIVE);
+                this._btnPhasing.setState(state ? Autodesk.Viewing.UI.Button.State.ACTIVE : Autodesk.Viewing.UI.Button.State.INACTIVE);
             });
             this._phasingPanel.setVisible(true);
         }
@@ -59,6 +75,24 @@ export class BIMExtension extends Autodesk.Viewing.Extension {
         }
         if (this._phasingPanel.isVisible()) {
             this._phasingPanel.refresh();
+        }
+    }
+
+    private onReport(e: MouseEvent): void {
+        if (!this._reportPanel) {
+            this._reportPanel = new ReportPanel(this.viewer.container, 'BIMExtension.ReportPanel', this._phasingController);
+            this.viewer.addPanel(this._reportPanel);
+            // as the panel visibility changes, we fix the button state
+            this._reportPanel.addVisibilityListener((state: boolean) => {
+                this._btnReport.setState(state ? Autodesk.Viewing.UI.Button.State.ACTIVE : Autodesk.Viewing.UI.Button.State.INACTIVE);
+            });
+            this._reportPanel.setVisible(true);
+        }
+        else {
+            this._reportPanel.toggleVisibility();
+        }
+        if (this._reportPanel.isVisible()) {
+            this._reportPanel.refresh();
         }
     }
 }

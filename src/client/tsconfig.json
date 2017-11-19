@@ -19,6 +19,7 @@
     "scripts/extension/bimExtension.ts",
     "scripts/extension/panelBase.ts",
     "scripts/extension/phasingController.ts",
-    "scripts/extension/phasingPanel.ts"
+    "scripts/extension/phasingPanel.ts",
+    "scripts/extension/reportPanel.ts"
   ]
 }
