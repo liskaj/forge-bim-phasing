@@ -300,8 +300,11 @@ declare module Autodesk {
             createViewCube(): void;
             displayViewCube(display: boolean): void;
             displayViewCubeUI(display: boolean): void;
+            setGhosting(display: boolean): void;
             fitToView(objectIds: number[], model?: Model): boolean;
+            getActiveNavigationTool(): string;
             getCutPlanes(): THREE.Vector4[];
+            getDefaultNavigationToolName(): string;
             getFocalLength(): number;
             getFOV(): number;
             getHiddenNodes(): number[];
@@ -323,6 +326,7 @@ declare module Autodesk {
             select(dbIds?: number | number[], model?: Model): void;
             setClickToSetCOI(state: boolean, updatePrefs?: boolean): void;
             setCutPlanes(planes: THREE.Vector4[]): void;
+            setDefaultNavigationTool(toolName: string): void;
             setFocalLength(mm: number): void;
             setFOV(degrees: number): void;
             setLightPreset(preset: number): void;
