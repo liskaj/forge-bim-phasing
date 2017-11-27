@@ -8,6 +8,7 @@ export class ReportPanel extends PanelBase {
     private _controller: PhasingController;
     private _templateLoaded: boolean = false;
     private _chart: JQuery;
+    private _tooltip: JQuery;
     private _plot: Plottable.Plots.Bar<string, number>;
     private _table: Plottable.Components.Table;
 
@@ -41,39 +42,35 @@ export class ReportPanel extends PanelBase {
         if (!this._templateLoaded) {
             return;
         }
-        this._controller.getData((data: { [name: string]: PhasingData}) => {
-            const chartData = [];
-            const keys = Object.keys(data);
+        if (!this._plot) {
+            this._controller.getData((data: { [name: string]: PhasingData}) => {
+                const chartData = [];
+                const keys = Object.keys(data);
 
-            // sort by index
-            keys.sort((firstKey, secondKey) => {
-                const firstIndex = data[firstKey].index;
-                const secondIndex = data[secondKey].index;
+                // sort by index
+                keys.sort((firstKey, secondKey) => {
+                    const firstIndex = data[firstKey].index;
+                    const secondIndex = data[secondKey].index;
 
-                if (firstIndex < secondIndex) {
-                    return -1;
-                }
-                else if (firstIndex > secondIndex) {
-                    return 1;
-                }
-                else {
-                    return 0;
-                }
-            });
-            keys.forEach((key) => {
-                const phaseData: PhasingData = data[key];
-
-                chartData.push({
-                    x: phaseData.index + 1,
-                    y: phaseData.dbIds.length
+                    if (firstIndex < secondIndex) {
+                        return -1;
+                    }
+                    else if (firstIndex > secondIndex) {
+                        return 1;
+                    }
+                    else {
+                        return 0;
+                    }
                 });
-            });
-            const dataSet = new Plottable.Dataset(chartData);
+                keys.forEach((key) => {
+                    const phaseData: PhasingData = data[key];
 
-            if (this._plot) {
-                this._plot.datasets([ dataSet ]);
-            }
-            else {
+                    chartData.push({
+                        x: phaseData.index + 1,
+                        y: phaseData.totalElements
+                    });
+                });
+                const dataSet = new Plottable.Dataset(chartData);
                 const xScale = new Plottable.Scales.Category();
                 const yScale = new Plottable.Scales.Linear();
                 const xAxis = new Plottable.Axes.Category(xScale, 'bottom');
@@ -92,8 +89,30 @@ export class ReportPanel extends PanelBase {
                     [null, xAxis]
                 ]);
                 this._table.renderTo(this._chart[0]);
-            }
-        });
+                // tooltip
+                const pointer = new Plottable.Interactions.Pointer();
+
+                pointer.onPointerMove((p) => {
+                    const closest = this._plot.entityNearest(p);
+
+                    if (closest) {
+                        this._tooltip.toggleClass('hidden', false);
+                        this._tooltip.css({
+                            left: (closest.position.x + 44) + 'px',
+                            top: (closest.position.y - 16) + 'px'
+                        });
+                        $(this._tooltip).children('.tooltip-value').text(closest.datum.y);
+                    }
+                    else {
+                        this._tooltip.toggleClass('hidden', true);
+                    }
+                });
+                pointer.onPointerExit(() => {
+                    this._tooltip.toggleClass('hidden', true);
+                });
+                pointer.attachTo(this._plot);
+            });
+        }
     }
 
     private onTemplate(err: string, content: string): void {
@@ -102,6 +121,7 @@ export class ReportPanel extends PanelBase {
         tmp.innerHTML = content;
         this.scrollContainer.appendChild(tmp.childNodes[0]);
         this._chart = $('#phasing-chart');
+        this._tooltip = $('#chart-tooltip');
         this._templateLoaded = true;
         // update dialog
         this.refresh();
