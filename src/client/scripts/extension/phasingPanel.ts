@@ -9,8 +9,8 @@ export class PhasingPanel extends PanelBase {
     private _btnLast: JQuery;
     private _btnPrev: JQuery;
     private _btnNext: JQuery;
+    private _elementsContainer: JQuery;
     private _labelPhase: JQuery;
-    private _labelElements: JQuery;
     private _labelArea: JQuery;
     private _labelVolume: JQuery;
 
@@ -24,7 +24,7 @@ export class PhasingPanel extends PanelBase {
         this.container.style.left = '60px';
         this.container.style.top = '40px';
         this.container.style.width = '320px';
-        this.container.style.height = '200px';
+        this.container.style.height = '260px';
         this.container.style.position = 'absolute';
         // scroll container
         this.createScrollContainer({
@@ -55,10 +55,40 @@ export class PhasingPanel extends PanelBase {
             const phaseData: PhasingData = this._controller.currentPhase;
 
             this._labelPhase.text(phaseData.name + ' (' + (phaseData.index + 1) + '/' + this._controller.phases.length + ')');
-            this._labelElements.text(phaseData.dbIds.length);
             this._labelArea.text(phaseData.area.toFixed(3).toString());
             this._labelVolume.text(phaseData.volume.toFixed(3).toString());
+            this._elementsContainer.empty();
+            const keys: string[] = Object.keys(phaseData.objectIds);
+
+            // sort keys - we want other to be always last
+            keys.sort((first, second) => {
+                if (first === 'Other') {
+                    return 1;
+                }
+                if (second === 'Other') {
+                    return -1;
+                }
+                return first.localeCompare(second);
+            });
+            keys.forEach((key: string) => {
+                this.addRow(this._elementsContainer[0], key, phaseData.objectIds[key].length.toString());
+            });
         }
+    }
+
+    private addRow(container: HTMLElement, name: string, value: string): void {
+        const row: HTMLDivElement = document.createElement('div');
+
+        row.className = 'phasing-panel-row';
+        const titleElement: HTMLSpanElement = document.createElement('span');
+
+        titleElement.innerText = name + ': ';
+        row.appendChild(titleElement);
+        const valueElement: HTMLSpanElement = document.createElement('span');
+
+        valueElement.innerText = value;
+        row.appendChild(valueElement);
+        container.appendChild(row);
     }
 
     private displayPhase(phase: string): void {
@@ -112,7 +142,7 @@ export class PhasingPanel extends PanelBase {
             this.onBtnLastClick(e);
         });
         this._labelPhase = $('#phasing-phase');
-        this._labelElements = $('#phasing-elements');
+        this._elementsContainer = $('#phasing-elements-container');
         this._labelArea = $('#phasing-area');
         this._labelVolume = $('#phasing-volume');
         this._templateLoaded = true;
