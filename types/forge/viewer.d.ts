@@ -335,7 +335,7 @@ declare module Autodesk {
             setNavigationLockSettings(settings: { [action: string]: boolean }): void;
             setSelectionMode(mode: Autodesk.Viewing.SelectionMode): void;
             setThemingColor(dbId: number, color: THREE.Vector4, model?: any): void;
-            setUp(config?: any): void;
+            setUp(config?: Autodesk.Viewing.ViewerConfig): void;
             setViewCube(face: string): void;
             showAll(): void;
             tearDown(): void;
