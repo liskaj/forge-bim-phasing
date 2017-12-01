@@ -13,13 +13,21 @@ export interface PhasingData {
 
 export class PhasingController {
     private _categoryMapping: { [key: string]: string } = {
+        'Revit Air Terminals' : 'HVAC Elements',
+        'Revit Columns' : 'Structural Elements',
+        'Revit Curtain Panels' : 'Curtain Wall Elements',
+        'Revit Curtain Wall Mullions' : 'Curtain Wall Elements',
+        'Revit Doors' : 'Doors',
+        'Revit Ducts' : 'HVAC Elements',
+        'Revit Duct Fittings' : 'HVAC Elements',
         'Revit Floors' : 'Floors',
+        'Revit Lighting Devices' : 'Lighting',
+        'Revit Lighting Fixtures' : 'Lighting',
+        'Revit Slab Edges' : 'Structural Elements',
+        'Revit Structural Columns' : 'Structural Elements',
         'Revit Structural Foundations' : 'Structural Elements',
         'Revit Structural Framing' : 'Structural Elements',
-        'Revit Structural Columns' : 'Structural Elements',
-        'Revit Walls' : 'Walls',
-        'Revit Curtain Panels' : 'Curtain Wall Elements',
-        'Revit Curtain Wall Mullions' : 'Curtain Wall Elements'
+        'Revit Walls' : 'Walls'
     };
     private _phases: string[] = [
         '01-Site',
