@@ -1,16 +1,24 @@
 ﻿/// <reference path='../../../../types/d3/index.d.ts' />
 /// <reference path='../../lib/plottable/plottable.d.ts' />
 
+import { Colors } from './colors';
 import { PanelBase } from './panelBase';
 import { PhasingController, PhasingData } from './phasingController';
+import { Tooltip, TooltipData } from './tooltip';
+
+interface ChartData {
+    x: number;
+    y: number;
+}
 
 export class ReportPanel extends PanelBase {
     private _controller: PhasingController;
     private _templateLoaded: boolean = false;
     private _chart: JQuery;
-    private _tooltip: JQuery;
-    private _plot: Plottable.Plots.Bar<string, number>;
+    private _tooltip: Tooltip;
+    private _plot: Plottable.Plots.StackedBar<string, number>;
     private _table: Plottable.Components.Table;
+    private _tooltips: TooltipData[][];
 
     constructor(container: Element, id: string, controller: PhasingController, options?: any) {
         super(container, id, 'Elements per phase', options);
@@ -44,7 +52,6 @@ export class ReportPanel extends PanelBase {
         }
         if (!this._plot) {
             this._controller.getData((data: { [name: string]: PhasingData}) => {
-                const chartData = [];
                 const keys = Object.keys(data);
 
                 // sort by index
@@ -62,28 +69,94 @@ export class ReportPanel extends PanelBase {
                         return 0;
                     }
                 });
+                // get object names
+                const objectNames: string[] = [];
+                let phaseCount: number = 0;
+
+                keys.forEach((key) => {
+                    const phaseData: PhasingData = data[key];
+                    const objectKeys: string[] = Object.keys(phaseData.objectIds);
+
+                    phaseCount = Math.max(phaseCount, phaseData.index);
+                    objectKeys.forEach((objectKey) => {
+                        if (objectNames.indexOf(objectKey) < 0) {
+                            objectNames.push(objectKey);
+                        }
+                    });
+                });
+                objectNames.sort();
+                const dataSets: { [key: string]: ChartData[] } = {};
+
                 keys.forEach((key) => {
                     const phaseData: PhasingData = data[key];
 
-                    chartData.push({
-                        x: phaseData.index + 1,
-                        y: phaseData.totalElements
+                    objectNames.forEach((objectName) => {
+                        let dataSet: ChartData[] = dataSets[objectName];
+
+                        if (!dataSet) {
+                            dataSet = [];
+                            dataSets[objectName] = dataSet;
+                        }
+                        const objectIds = phaseData.objectIds[objectName];
+                        const length = (objectIds ? objectIds.length : 0);
+
+                        dataSet.push({
+                            x: phaseData.index + 1,
+                            y: length
+                        });
                     });
                 });
-                const dataSet = new Plottable.Dataset(chartData);
+                // tooltips
+                this._tooltips = [];
+
+                for (let i = 0; i <= phaseCount; i++) {
+                    const tooltipData: TooltipData[] = [];
+
+                    objectNames.forEach((objectName, index) => {
+                        const dataSet: ChartData[] = dataSets[objectName];
+
+                        if (dataSet[i].y > 0) {
+                            tooltipData.push({
+                                category: objectName,
+                                categoryIndex: index,
+                                value: dataSet[i].y
+                            });
+                        }
+                    });
+                    this._tooltips.push(tooltipData);
+                }
                 const xScale = new Plottable.Scales.Category();
                 const yScale = new Plottable.Scales.Linear();
                 const xAxis = new Plottable.Axes.Category(xScale, 'bottom');
                 const yAxis = new Plottable.Axes.Numeric(yScale, 'left');
 
-                this._plot = new Plottable.Plots.Bar();
-                this._plot.addDataset(dataSet);
+                this._plot = new Plottable.Plots.StackedBar();
+                const panZoom = new Plottable.Interactions.PanZoom(xScale, null);
+
+                panZoom.attachTo(this._plot);
+                const dataKeys: string[] = Object.keys(dataSets);
+
+                dataKeys.forEach((dataKey, index) => {
+                    this._plot.addDataset(new Plottable.Dataset(dataSets[dataKey]).metadata(index));
+                });
+                // add colors
+                const colors: string[] = [];
+
+                for (let i = 0; i < objectNames.length; i++) {
+                    colors.push(Colors.chartColors[i]);
+                }
+                const colorScale = new Plottable.Scales.InterpolatedColor();
+
+                colorScale.range(colors);
                 this._plot.x((d) => {
                     return d.x;
                 }, xScale);
                 this._plot.y((d) => {
                     return d.y;
                 }, yScale);
+                this._plot.attr('fill', (d, i, dataSet) => {
+                    return dataSet.metadata();
+                }, colorScale);
                 this._table = new Plottable.Components.Table([
                     [yAxis, this._plot],
                     [null, xAxis]
@@ -96,19 +169,14 @@ export class ReportPanel extends PanelBase {
                     const closest = this._plot.entityNearest(p);
 
                     if (closest) {
-                        this._tooltip.toggleClass('hidden', false);
-                        this._tooltip.css({
-                            left: (closest.position.x + 44) + 'px',
-                            top: (closest.position.y - 16) + 'px'
-                        });
-                        $(this._tooltip).children('.tooltip-value').text(closest.datum.y);
+                        this._tooltip.show(p, this._tooltips[closest.index]);
                     }
                     else {
-                        this._tooltip.toggleClass('hidden', true);
+                        this._tooltip.hide();
                     }
                 });
                 pointer.onPointerExit(() => {
-                    this._tooltip.toggleClass('hidden', true);
+                    this._tooltip.hide();
                 });
                 pointer.attachTo(this._plot);
             });
@@ -121,7 +189,7 @@ export class ReportPanel extends PanelBase {
         tmp.innerHTML = content;
         this.scrollContainer.appendChild(tmp.childNodes[0]);
         this._chart = $('#phasing-chart');
-        this._tooltip = $('#chart-tooltip');
+        this._tooltip = new Tooltip('#chart-tooltip');
         this._templateLoaded = true;
         // update dialog
         this.refresh();

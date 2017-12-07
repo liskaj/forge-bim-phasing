@@ -17,9 +17,11 @@
     "scripts/main.ts",
     "scripts/viewerController.ts",
     "scripts/extension/bimExtension.ts",
+    "scripts/extension/colors.ts",
     "scripts/extension/panelBase.ts",
     "scripts/extension/phasingController.ts",
     "scripts/extension/phasingPanel.ts",
-    "scripts/extension/reportPanel.ts"
+    "scripts/extension/reportPanel.ts",
+    "scripts/extension/tooltip.ts"
   ]
 }
