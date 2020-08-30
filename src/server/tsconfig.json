@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "listFiles": true,
+    "forceConsistentCasingInFileNames": true,
     "locale": "en-US",
     "module": "commonjs",
     "moduleResolution": "node",
@@ -13,10 +13,5 @@
   },
   "exclude": [
     "../../node_modules/@types/jquery"
-  ],
-  "files": [
-    "server.ts",
-    "statusCodes.ts",
-    "apiController.ts"
   ]
 }
