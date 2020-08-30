@@ -148,106 +148,108 @@ export class PhasingController {
         this._currentPhase = currentPhase;
     }
 
-    public getData(callback: (data: { [name: string]: PhasingData }) => void): void {
-        if (this._data) {
-            callback(this._data);
-            return;
-        }
-        const data: { [name: string]: PhasingData } = {};
+    public getData(): Promise<{ [name: string]: PhasingData }> {
+        return new Promise<{ [name: string]: PhasingData }>((resolve, reject) => {
+            if (this._data) {
+                resolve(this._data);
+                return;
+            }
+            const data: { [name: string]: PhasingData } = {};
 
-        this.viewer.model.getObjectTree((instanceTree: Autodesk.Viewing.InstanceTree) => {
-            // get leaf nodes
-            const ids: number[] = [];
+            this.viewer.model.getObjectTree((instanceTree: Autodesk.Viewing.InstanceTree) => {
+                // get leaf nodes
+                const ids: number[] = [];
 
-            instanceTree.enumNodeChildren(instanceTree.getRootId(), (id: number) => {
-                if (instanceTree.getChildCount(id) === 0) {
-                    ids.push(id);
-                }
-            }, true);
-            const properties: string[] = [
-                'Phase Created',
-                'Volume',
-                'Area',
-                'Category'
-            ];
-
-            this.viewer.model.getBulkProperties(ids, properties, (propResults: Autodesk.Viewing.PropertyResult[]) => {
-                propResults.forEach((propResult: Autodesk.Viewing.PropertyResult) => {
-                    let phase: string;
-                    let category: string;
-                    let area: number = 0.0;
-                    let volume: number = 0.0;
-
-                    propResult.properties.forEach((p) => {
-                        switch (p.displayName) {
-                            case 'Category':
-                                if (p.displayCategory === '__category__') {
-                                    category = p.displayValue;
-                                }
-                                break;
-                            case 'Phase Created':
-                                phase = p.displayValue;
-                                break;
-                            case 'Area':
-                                area = parseFloat(p.displayValue);
-                                break;
-                            case 'Volume':
-                                volume = parseFloat(p.displayValue);
-                                break;
-                        }
-                    });
-                    if (category in this._categoryMapping) {
-                        category = this._categoryMapping[category];
+                instanceTree.enumNodeChildren(instanceTree.getRootId(), (id: number) => {
+                    if (instanceTree.getChildCount(id) === 0) {
+                        ids.push(id);
                     }
-                    else {
-                        category = 'Other';
-                    }
-                    if (phase) {
-                        let phaseData: PhasingData = data[phase];
+                }, true);
+                const properties: string[] = [
+                    'Phase Created',
+                    'Volume',
+                    'Area',
+                    'Category'
+                ];
 
-                        if (!phaseData) {
-                            phaseData = {
-                                name: phase,
-                                area: 0.0,
-                                volume: 0.0,
-                                objectIds: {},
-                                index: 0,
-                                totalElements: 0
-                            };
-                        }
-                        let objectIds: number[];
+                this.viewer.model.getBulkProperties(ids, properties, (propResults: Autodesk.Viewing.PropertyResult[]) => {
+                    propResults.forEach((propResult: Autodesk.Viewing.PropertyResult) => {
+                        let phase: string;
+                        let category: string;
+                        let area: number = 0.0;
+                        let volume: number = 0.0;
 
-                        if (category in phaseData.objectIds) {
-                            objectIds = phaseData.objectIds[category];
+                        propResult.properties.forEach((p) => {
+                            switch (p.displayName) {
+                                case 'Category':
+                                    if (p.displayCategory === '__category__') {
+                                        category = p.displayValue;
+                                    }
+                                    break;
+                                case 'Phase Created':
+                                    phase = p.displayValue;
+                                    break;
+                                case 'Area':
+                                    area = parseFloat(p.displayValue);
+                                    break;
+                                case 'Volume':
+                                    volume = parseFloat(p.displayValue);
+                                    break;
+                            }
+                        });
+                        if (category in this._categoryMapping) {
+                            category = this._categoryMapping[category];
                         }
                         else {
-                            objectIds = [];
-                            phaseData.objectIds[category] = objectIds;
+                            category = 'Other';
                         }
-                        objectIds.push(propResult.dbId);
-                        phaseData.area += area;
-                        phaseData.volume += volume;
-                        data[phase] = phaseData;
-                    }
-                });
-                // assign indexes & calculate total
-                const keys: string[] = Object.keys(data);
+                        if (phase) {
+                            let phaseData: PhasingData = data[phase];
 
-                keys.forEach((k) => {
-                    const phaseData = data[k];
+                            if (!phaseData) {
+                                phaseData = {
+                                    name: phase,
+                                    area: 0.0,
+                                    volume: 0.0,
+                                    objectIds: {},
+                                    index: 0,
+                                    totalElements: 0
+                                };
+                            }
+                            let objectIds: number[];
 
-                    phaseData.index = this._phases.indexOf(k);
-                    const objectKeys: string[] = Object.keys(phaseData.objectIds);
-                    let total: number = 0;
-
-                    objectKeys.forEach((objectKey) => {
-                        total += phaseData.objectIds[objectKey].length;
+                            if (category in phaseData.objectIds) {
+                                objectIds = phaseData.objectIds[category];
+                            }
+                            else {
+                                objectIds = [];
+                                phaseData.objectIds[category] = objectIds;
+                            }
+                            objectIds.push(propResult.dbId);
+                            phaseData.area += area;
+                            phaseData.volume += volume;
+                            data[phase] = phaseData;
+                        }
                     });
-                    phaseData.totalElements = total;
+                    // assign indexes & calculate total
+                    const keys: string[] = Object.keys(data);
+
+                    keys.forEach((k) => {
+                        const phaseData = data[k];
+
+                        phaseData.index = this._phases.indexOf(k);
+                        const objectKeys: string[] = Object.keys(phaseData.objectIds);
+                        let total: number = 0;
+
+                        objectKeys.forEach((objectKey) => {
+                            total += phaseData.objectIds[objectKey].length;
+                        });
+                        phaseData.totalElements = total;
+                    });
+                    // remember data
+                    this._data = data;
+                    resolve(data);
                 });
-                // remember data
-                this._data = data;
-                callback(data);
             });
         });
     }

@@ -40,16 +40,16 @@ export class PhasingPanel extends PanelBase {
         });
     }
 
-    public refresh(): void {
+    public async refresh(): Promise<void> {
         if (!this._templateLoaded) {
             return;
         }
         if (!this._dataLoaded) {
-            this._controller.getData((data: { [name: string]: PhasingData }) => {
-                this._dataLoaded = true;
-                // navigate to 1st phase
-                this._btnFirst.click();
-            });
+            const data = await this._controller.getData();
+
+            this._dataLoaded = true;
+            // navigate to 1st phase
+            this._btnFirst.click();
         }
         else {
             const phaseData: PhasingData = this._controller.currentPhase;
