@@ -23,7 +23,7 @@ export class AppController {
                     env: 'AutodeskProduction',
                     getAccessToken: this.getToken.bind(this)
                 };
-    
+
                 Autodesk.Viewing.Initializer(options, () => {
                     this._initialized = true;
                     resolve();
@@ -41,9 +41,10 @@ export class AppController {
         await this._viewerController.loadModel(this._urn);
     }
 
-    private getToken(callback: (token: string, expires: number) => void): void {
-        $.get('/api/v1/viewtoken', (tokenResponse) => {
-            callback(tokenResponse.access_token, tokenResponse.expires_in);
-        });
+    private async getToken(callback: (token: string, expires: number) => void): Promise<void> {
+        const response = await fetch('/api/v1/viewtoken');
+        const data = await response.json();
+
+        callback(data.access_token, data.expires_in);
     }
 }
