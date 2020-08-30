@@ -1,10 +1,9 @@
-﻿/// <reference path='../../../../types/d3/index.d.ts' />
-/// <reference path='../../lib/plottable/plottable.d.ts' />
-
-import { Colors } from './colors';
+﻿import { Colors } from './colors';
 import { PanelBase } from './panelBase';
 import { PhasingController, PhasingData } from './phasingController';
 import { Tooltip, TooltipData } from './tooltip';
+
+import { Axes, Components, Dataset, Interactions, Plots, Scales } from 'plottable';
 
 interface ChartData {
     x: number;
@@ -16,8 +15,8 @@ export class ReportPanel extends PanelBase {
     private _templateLoaded: boolean = false;
     private _chart: JQuery;
     private _tooltip: Tooltip;
-    private _plot: Plottable.Plots.StackedBar<string, number>;
-    private _table: Plottable.Components.Table;
+    private _plot: Plots.StackedBar<string, number>;
+    private _table: Components.Table;
     private _tooltips: TooltipData[][];
 
     constructor(container: Element, id: string, controller: PhasingController, options?: any) {
@@ -125,19 +124,19 @@ export class ReportPanel extends PanelBase {
                     });
                     this._tooltips.push(tooltipData);
                 }
-                const xScale = new Plottable.Scales.Category();
-                const yScale = new Plottable.Scales.Linear();
-                const xAxis = new Plottable.Axes.Category(xScale, 'bottom');
-                const yAxis = new Plottable.Axes.Numeric(yScale, 'left');
+                const xScale = new Scales.Category();
+                const yScale = new Scales.Linear();
+                const xAxis = new Axes.Category(xScale, 'bottom');
+                const yAxis = new Axes.Numeric(yScale, 'left');
 
-                this._plot = new Plottable.Plots.StackedBar();
-                const panZoom = new Plottable.Interactions.PanZoom(xScale, null);
+                this._plot = new Plots.StackedBar();
+                const panZoom = new Interactions.PanZoom(xScale, null);
 
                 panZoom.attachTo(this._plot);
                 const dataKeys: string[] = Object.keys(dataSets);
 
                 dataKeys.forEach((dataKey, index) => {
-                    this._plot.addDataset(new Plottable.Dataset(dataSets[dataKey]).metadata(index));
+                    this._plot.addDataset(new Dataset(dataSets[dataKey]).metadata(index));
                 });
                 // add colors
                 const colors: string[] = [];
@@ -145,7 +144,7 @@ export class ReportPanel extends PanelBase {
                 for (let i = 0; i < objectNames.length; i++) {
                     colors.push(Colors.chartColors[i]);
                 }
-                const colorScale = new Plottable.Scales.InterpolatedColor();
+                const colorScale = new Scales.InterpolatedColor();
 
                 colorScale.range(colors);
                 this._plot.x((d) => {
@@ -157,13 +156,13 @@ export class ReportPanel extends PanelBase {
                 this._plot.attr('fill', (d, i, dataSet) => {
                     return dataSet.metadata();
                 }, colorScale);
-                this._table = new Plottable.Components.Table([
+                this._table = new Components.Table([
                     [yAxis, this._plot],
                     [null, xAxis]
                 ]);
                 this._table.renderTo(this._chart[0]);
                 // tooltip
-                const pointer = new Plottable.Interactions.Pointer();
+                const pointer = new Interactions.Pointer();
 
                 pointer.onPointerMove((p) => {
                     const closest = this._plot.entityNearest(p);

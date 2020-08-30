@@ -1,13 +1,9 @@
-﻿/// <reference path='../../../types/forge/viewer.d.ts' />
-
-'use strict';
-
-type EventCallback = (event: any) => void;
+﻿type EventCallback = (event: any) => void;
 
 export class ViewerController {
     private _viewerEvents: { [key: string]: EventCallback } = {};
     private _container: HTMLElement;
-    private _viewer: Autodesk.Viewing.Private.GuiViewer3D;
+    private _viewer: Autodesk.Viewing.GuiViewer3D;
     private _viewerConfig: Autodesk.Viewing.ViewerConfig;
 
     constructor(id: string, config?: Autodesk.Viewing.ViewerConfig) {
@@ -15,7 +11,7 @@ export class ViewerController {
         this._viewerConfig = config;
     }
 
-    public get viewer(): Autodesk.Viewing.Private.GuiViewer3D {
+    public get viewer(): Autodesk.Viewing.GuiViewer3D {
         return this._viewer;
     }
 
@@ -51,37 +47,43 @@ export class ViewerController {
         this._viewerEvents[Autodesk.Viewing.SELECTION_CHANGED_EVENT] = callback;
     }
 
-    public loadModel(path: string, options?: any): void {
-        if (!this._viewer) {
-            this._viewer = new Autodesk.Viewing.Private.GuiViewer3D(this._container, this._viewerConfig);
-            this._viewer.start();
-            // subscribe to viewer events
-            const events: string[] = Object.keys(this._viewerEvents);
+    public loadModel(urn: string, options?: any): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            let documentId: string = urn;
 
-            for (let i = 0; i < events.length; i++) {
-                const eventName: string = events[i];
-
-                this._viewer.addEventListener(eventName, (event: any) => {
-                    // for each event we try to find corresponding callback and trigger it
-                    const callback: EventCallback = this._viewerEvents[eventName];
-
-                    if (callback) {
-                        callback(event);
-                    }
-                });
+            if (documentId.indexOf('urn:') !== 0) {
+                documentId = `urn:${documentId}`;
             }
-        }
-        else {
-            this._viewer.tearDown();
-            this._viewer.setUp();
-        }
-        this._viewer.loadModel(path, options);
-    }
+            Autodesk.Viewing.Document.load(documentId, (doc) => {
+                const viewable = doc.getRoot().getDefaultGeometry();
 
-    public finish(): void {
-        if (this._viewer) {
-            this._viewer.finish();
-            this._viewer = null;
-        }
+                if (!this._viewer) {
+                    this._viewer = new Autodesk.Viewing.GuiViewer3D(this._container, this._viewerConfig);
+                }
+                if (!this._viewer.started) {
+                    this._viewer.start();
+                    // subscribe to viewer events
+                    const events: string[] = Object.keys(this._viewerEvents);
+
+                    for (let i = 0; i < events.length; i++) {
+                        const eventName: string = events[i];
+
+                        this._viewer.addEventListener(eventName, (event: any) => {
+                            // for each event we try to find corresponding callback and trigger it
+                            const callback: EventCallback = this._viewerEvents[eventName];
+
+                            if (callback) {
+                                callback(event);
+                            }
+                        });
+                    }
+                }
+                this._viewer.loadDocumentNode(doc, viewable).then((model) => {
+                    resolve();
+                });
+            }, (errorCode, errorMsg, messages) => {
+                reject(new Error(errorMsg));
+            });
+        });
     }
 }

@@ -1,6 +1,4 @@
-﻿/// <reference path='../../../../types/forge/viewer.d.ts' />
-
-import * as THREE from 'three';
+﻿import * as THREE from 'three';
 
 export interface PhasingData {
     name: string;
@@ -53,12 +51,12 @@ export class PhasingController {
     private _colorNew: THREE.Vector4;
     private _currentPhase: PhasingData;
 
-    constructor(private _viewer: Autodesk.Viewing.Private.GuiViewer3D) {
+    constructor(private _viewer: Autodesk.Viewing.GuiViewer3D) {
         this._colorExisting = new THREE.Vector4(0.75, 0.75, 0.75, 0.8);
         this._colorNew = new THREE.Vector4(0.0, 0.85, 0.0, 0.8);
     }
 
-    private get viewer(): Autodesk.Viewing.Private.GuiViewer3D {
+    private get viewer(): Autodesk.Viewing.GuiViewer3D {
         return this._viewer;
     }
 

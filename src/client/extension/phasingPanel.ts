@@ -24,11 +24,11 @@ export class PhasingPanel extends PanelBase {
         this.container.style.left = '60px';
         this.container.style.top = '40px';
         this.container.style.width = '320px';
-        this.container.style.height = '280px';
+        this.container.style.height = '340px';
         this.container.style.position = 'absolute';
         // scroll container
         this.createScrollContainer({
-            heightAdjustment: 40,
+            heightAdjustment: 70,
             left: false,
             marginTop: 0
         });

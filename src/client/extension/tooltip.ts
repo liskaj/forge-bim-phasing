@@ -1,9 +1,5 @@
-﻿/// <reference path='../../../../types/d3/index.d.ts' />
-/// <reference path='../../lib/plottable/plottable.d.ts' />
-
-'use strict';
-
-import { Colors } from './colors';
+﻿import { Colors } from './colors';
+import { Point } from 'plottable';
 
 export interface TooltipData {
     category: string;
@@ -24,7 +20,7 @@ export class Tooltip {
         this._tooltip.toggleClass('hidden', true);
     }
 
-    public show(position: Plottable.Point, tooltips: TooltipData[]): void {
+    public show(position: Point, tooltips: TooltipData[]): void {
         this._tooltip.toggleClass('hidden', false);
         this._tooltip.css({
             left: (position.x + this._offsetX) + 'px',

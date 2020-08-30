@@ -1,6 +1,4 @@
-﻿/// <reference path='../../../../types/forge/viewer.d.ts' />
-
-import { PhasingController } from './phasingController';
+﻿import { PhasingController } from './phasingController';
 import { PhasingPanel } from './phasingPanel';
 import { ReportPanel } from './reportPanel';
 
@@ -12,13 +10,12 @@ export class BIMExtension extends Autodesk.Viewing.Extension {
     private _btnPhasing: Autodesk.Viewing.UI.Button;
     private _btnReport: Autodesk.Viewing.UI.Button;
 
-    constructor(viewer: Autodesk.Viewing.Private.GuiViewer3D, options: any) {
+    constructor(viewer: Autodesk.Viewing.GuiViewer3D, options: any) {
         super(viewer, options);
     }
 
     public load(): boolean {
         this._phasingController = new PhasingController(this.viewer);
-        this.createToolbar();
         return true;
     }
 
@@ -34,6 +31,10 @@ export class BIMExtension extends Autodesk.Viewing.Extension {
             this._reportPanel = null;
         }
         return true;
+    }
+
+    public onToolbarCreated(toolbar?: Autodesk.Viewing.UI.ToolBar): void {
+        this.createToolbar();
     }
 
     private createToolbar(): void {
@@ -55,7 +56,7 @@ export class BIMExtension extends Autodesk.Viewing.Extension {
         const ctrlGroup = new Autodesk.Viewing.UI.ControlGroup('BIMExtension.Toolbar.ControlGroup');
 
         ctrlGroup.addControl(this._btnPhasing);
-        ctrlGroup.addControl(this._btnReport);
+        //ctrlGroup.addControl(this._btnReport);
         // add group to main toolbar
         this.viewer.toolbar.addControl(ctrlGroup);
     }

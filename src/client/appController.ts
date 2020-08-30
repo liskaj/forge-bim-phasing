@@ -1,9 +1,4 @@
-﻿/// <reference path='../../../types/forge/forge.d.ts' />
-/// <reference path='../../../types/forge/viewer.d.ts' />
-
-'use strict';
-
-import { ViewerController } from './viewerController';
+﻿import { ViewerController } from './viewerController';
 import { BIMExtension } from './extension/bimExtension';
 
 Autodesk.Viewing.theExtensionManager.registerExtension('BIMExtension', BIMExtension);
@@ -11,7 +6,7 @@ Autodesk.Viewing.theExtensionManager.registerExtension('BIMExtension', BIMExtens
 export class AppController {
     private _initialized: boolean;
     private _urn: string;
-    private _viewer: ViewerController;
+    private _viewerController: ViewerController;
 
     constructor() {
         this._initialized = false;
@@ -19,82 +14,36 @@ export class AppController {
         this._urn = 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bG12ZGVtb193ZzZqZDFkem8xaG5wNng0Z2ZjdW93Y2czYXJyM2h1dC9TdXBlcm1hcmtldC56aXA';
     }
 
-    public initialize(): void {
-        this.load();
+    public initialize(): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            if (this._initialized) {
+                resolve();
+            } else {
+                const options = {
+                    env: 'AutodeskProduction',
+                    getAccessToken: this.getToken.bind(this)
+                };
+    
+                Autodesk.Viewing.Initializer(options, () => {
+                    this._initialized = true;
+                    resolve();
+                });
+            }
+        });
+    }
+
+    public async load(): Promise<void> {
+        this._viewerController = new ViewerController('viewer-container', {
+            extensions: [
+                'BIMExtension'
+            ]
+        });
+        await this._viewerController.loadModel(this._urn);
     }
 
     private getToken(callback: (token: string, expires: number) => void): void {
-        $.get('/api/v1/viewtoken', (tokenResponse: Autodesk.Forge.AuthToken) => {
+        $.get('/api/v1/viewtoken', (tokenResponse) => {
             callback(tokenResponse.access_token, tokenResponse.expires_in);
-        });
-    }
-
-    private load(): void {
-        if (!this._initialized) {
-            const options: Autodesk.Viewing.InitializerOptions = Autodesk.Viewing.createInitializerOptions();
-
-            options.env = 'AutodeskProduction';
-            options.getAccessToken = this.getToken.bind(this);
-            options.refreshToken = this.getToken.bind(this);
-            options.useADP = false;
-            Autodesk.Viewing.Initializer(options, () => {
-                this._initialized = true;
-                this.loadDocument(this._urn);
-            });
-        }
-        else {
-            this.loadDocument(this._urn);
-        }
-    }
-
-    private loadDocument(urn: string): void {
-        let documentId: string = urn;
-
-        if (documentId.indexOf('urn:') !== 0) {
-            documentId = 'urn:' + documentId;
-        }
-        Autodesk.Viewing.Document.load(documentId, (doc: Autodesk.Viewing.Document) => {
-            this.onDocumentLoaded(doc);
-        }, (errorCode: number, errorMsg: string, messages: any[]) => {
-            this.onDocumentError(errorCode, errorMsg, messages);
-        });
-    }
-
-    private onDocumentLoaded(document: Autodesk.Viewing.Document): void {
-        const options = {
-            type: 'geometry',
-            role: '3d'
-        };
-        const items = Autodesk.Viewing.Document.getSubItemsWithProperties(document.getRootItem(), options, true);
-
-        if (items.length > 0) {
-            const path: string = document.getViewablePath(items[0]);
-            const viewerOptions = {
-                isAEC: true,
-                sharedPropertyDbPath: document.getPropertyDbPath()
-            };
-
-            this.updateViewer(path, viewerOptions);
-        }
-    }
-
-    private onDocumentError(errorCode: number, errorMsg: string, messages: any[]): void {
-        console.error('document load error: ' + errorMsg + '(' + errorCode + ')');
-    }
-
-    private updateViewer(path: string, options?: any) {
-        if (!this._viewer) {
-            const config: Autodesk.Viewing.ViewerConfig = Autodesk.Viewing.createViewerConfig();
-
-            this._viewer = new ViewerController('viewer-container', config);
-            this._viewer.onGeometryLoaded = this.onGeometryLoaded.bind(this);
-        }
-        this._viewer.loadModel(path, options);
-    }
-
-    private onGeometryLoaded(event: any) {
-        this._viewer.viewer.loadExtension('BIMExtension').then((e) => {
-            console.debug('BIM extension loaded');
         });
     }
 }

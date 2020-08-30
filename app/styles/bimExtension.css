@@ -7,9 +7,9 @@
 
 .phasing-panel-container {
     color: #f2f2f2;
-    margin: 10px 10px 0 10px;
-    height: 94%;
-    width: 96%;
+    height: calc(100% - 20px);
+    padding: 10px;
+    width: calc(100% - 20px);
 }
 
 .phasing-panel-button-row {
