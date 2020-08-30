@@ -1,12 +1,13 @@
 {
   "name": "forge-bim-phasing",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Forge BIM Phasing application",
   "main": "src/server/server.js",
   "scripts": {
-    "start": "node src/server/server.js",
-    "postinstall": "node node_modules/bower/bin/bower install && npm run ts-compile",
-    "ts-compile": "node node_modules/typescript/bin/tsc -p ./src/server && node node_modules/typescript/bin/tsc -p ./src/client"
+    "build:server": "node node_modules/typescript/bin/tsc -p ./src/server",
+    "build:client": "webpack --mode=production --config=webpack/webpack.config.js",
+    "dev": "webpack-dev-server --mode=development --config=webpack/webpack.config.js",
+    "start": "node src/server/server.js"
   },
   "engines": {
     "node": "8.9.0"
@@ -23,15 +24,26 @@
     "email": "jan.liska@autodesk.com"
   },
   "dependencies": {
-    "@types/body-parser": "^1.16.8",
-    "@types/express": "^4.0.36",
-    "@types/jquery": "^3.2.15",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
-    "forge-apis": "^0.4.1",
-    "typescript": "^2.6.1"
+    "forge-apis": "^0.7.3",
+    "plottable": "^3.9.0"
   },
   "devDependencies": {
-    "tslint": "^5.7.0"
+    "@types/body-parser": "^1.16.8",
+    "@types/express": "^4.0.36",
+    "@types/forge-viewer": "^7.5.2",
+    "@types/jquery": "^3.2.15",
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^6.0.3",
+    "fork-ts-checker-webpack-plugin": "^5.1.0",
+    "source-map-loader": "^1.1.0",
+    "ts-loader": "^8.0.3",
+    "tsconfig-paths-webpack-plugin": "^3.3.0",
+    "tslint": "^5.20.1",
+    "typescript": "^3.9.7",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
   }
 }
