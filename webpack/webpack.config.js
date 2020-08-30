@@ -11,7 +11,6 @@ const config = {
         app: './src/client/main.ts'
     },
     externals: {
-        axios:'axios',
         three: 'THREE'
     },
     devServer: {
