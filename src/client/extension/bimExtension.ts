@@ -56,7 +56,7 @@ export class BIMExtension extends Autodesk.Viewing.Extension {
         const ctrlGroup = new Autodesk.Viewing.UI.ControlGroup('BIMExtension.Toolbar.ControlGroup');
 
         ctrlGroup.addControl(this._btnPhasing);
-        //ctrlGroup.addControl(this._btnReport);
+        ctrlGroup.addControl(this._btnReport);
         // add group to main toolbar
         this.viewer.toolbar.addControl(ctrlGroup);
     }

@@ -29,11 +29,11 @@ export class ReportPanel extends PanelBase {
         this.container.style.left = '60px';
         this.container.style.top = '40px';
         this.container.style.width = '600px';
-        this.container.style.height = '400px';
+        this.container.style.height = '420px';
         this.container.style.position = 'absolute';
         // scroll container
         this.createScrollContainer({
-            heightAdjustment: 40,
+            heightAdjustment: 70,
             left: false,
             marginTop: 0
         });
