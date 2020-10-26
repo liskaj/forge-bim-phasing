@@ -254,6 +254,24 @@ export class PhasingController {
         });
     }
 
+    public replayPhases(): void {
+        // find next phase
+        let nextPhase;
+
+        if (!this.currentPhase) {
+            nextPhase = this._phases[0];
+        } else {
+            const index: number = this.currentPhase.index;
+
+            if (index < (this._phases.length - 1)) {
+                nextPhase = this._phases[index + 1];
+            } else {
+                nextPhase = this._phases[0];
+            }
+        }
+        this.displayPhase(nextPhase);
+    }
+
     public restoreDisplay(): void {
         this.showHiddenNodes();
         this.viewer.clearThemingColors(this.viewer.model);

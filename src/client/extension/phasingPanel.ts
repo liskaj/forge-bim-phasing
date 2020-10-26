@@ -5,8 +5,10 @@ export class PhasingPanel extends PanelBase {
     private _controller: PhasingController;
     private _templateLoaded: boolean = false;
     private _dataLoaded: boolean = false;
+    private _isPlaying: boolean = false;
     private _btnFirst: JQuery;
     private _btnLast: JQuery;
+    private _btnPlay: JQuery;
     private _btnPrev: JQuery;
     private _btnNext: JQuery;
     private _elementsContainer: JQuery;
@@ -112,6 +114,11 @@ export class PhasingPanel extends PanelBase {
         this.displayPhase(this._controller.nextPhase);
     }
 
+    private onBtnPlayClick(e: JQuery.Event): void {
+        this._isPlaying = !this._isPlaying;
+        this.replayPhases();
+    }
+
     private onBtnPrevClick(e: JQuery.Event): void {
         this.displayPhase(this._controller.previousPhase);
     }
@@ -132,6 +139,10 @@ export class PhasingPanel extends PanelBase {
         this._btnNext = $('#phasing-next');
         this._btnNext.on('click', (e) => {
             this.onBtnNextClick(e);
+        });
+        this._btnPlay = $('#phasing-play');
+        this._btnPlay.on('click', (e) => {
+            this.onBtnPlayClick(e);
         });
         this._btnPrev = $('#phasing-prev');
         this._btnPrev.on('click', (e) => {
@@ -154,5 +165,16 @@ export class PhasingPanel extends PanelBase {
         if (!state) {
             this._controller.restoreDisplay();
         }
+    }
+
+    private replayPhases(): void {
+        if (!this._isPlaying) {
+            return;
+        }
+        this._controller.replayPhases();
+        this.refresh();
+        setTimeout(() => {
+            this.replayPhases();
+        }, 1000);
     }
 }
