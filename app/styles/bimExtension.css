@@ -45,6 +45,10 @@
     background: url(../images/next-phase.png) no-repeat center;
 }
 
+.phasing-panel-btn.replay {
+    background: url(../images/replay.png) no-repeat center;
+}
+
 .phasing-panel-row {
     margin: 4px;
 }
