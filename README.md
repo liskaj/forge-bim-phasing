@@ -22,6 +22,21 @@ When using your own client ID/secret you also need to translate model and update
 * Use `npm run build:server` to build the server.
 * Use `npm run build:client` to build the client.
 
+## Using Docker
+Build Docker image:
+```
+docker build . -t forge-bim-phasing
+```
+
+To run application from image locally use following command:
+```
+docker run --env-file .env -it --rm -p 5000:3000 forge-bim-phasing
+```
+The application can be then accessed on port 5000:
+```
+http://localhost:5000
+```
+
 ## Running the application
 1. Open web page [here](http://forge-bim-phasing.azurewebsites.net). Note that it's using shared instance so it may take a while when website opens when running for first time.
 2. Click on Phases button in the main toolbar.
