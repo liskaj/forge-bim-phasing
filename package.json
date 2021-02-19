@@ -6,7 +6,7 @@
   "scripts": {
     "build:server": "node node_modules/typescript/bin/tsc -p ./src/server",
     "build:client": "webpack --mode=production --config=webpack/webpack.config.js",
-    "dev": "webpack-dev-server --mode=development --config=webpack/webpack.config.js",
+    "dev": "webpack serve --mode=development --config=webpack/webpack.config.js",
     "start": "node src/server/server.js"
   },
   "engines": {
@@ -26,24 +26,23 @@
   "dependencies": {
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
-    "forge-apis": "^0.7.3",
+    "forge-apis": "^0.8.4",
     "plottable": "^3.9.0"
   },
   "devDependencies": {
     "@types/body-parser": "^1.16.8",
-    "@types/express": "^4.0.36",
-    "@types/forge-viewer": "^7.5.2",
-    "@types/jquery": "^3.2.15",
+    "@types/express": "^4.17.11",
+    "@types/forge-viewer": "^7.35.0",
+    "@types/jquery": "^3.5.5",
     "clean-webpack-plugin": "^3.0.0",
-    "copy-webpack-plugin": "^6.0.3",
-    "fork-ts-checker-webpack-plugin": "^5.1.0",
-    "source-map-loader": "^1.1.0",
-    "ts-loader": "^8.0.3",
+    "copy-webpack-plugin": "^7.0.0",
+    "fork-ts-checker-webpack-plugin": "^6.1.0",
+    "source-map-loader": "^2.0.1",
+    "ts-loader": "^8.0.17",
     "tsconfig-paths-webpack-plugin": "^3.3.0",
-    "tslint": "^5.20.1",
-    "typescript": "^3.9.7",
-    "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0"
+    "typescript": "^4.1.5",
+    "webpack": "^5.23.0",
+    "webpack-cli": "^4.5.0",
+    "webpack-dev-server": "^3.11.2"
   }
 }
